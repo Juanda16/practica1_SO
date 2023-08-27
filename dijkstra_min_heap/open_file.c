@@ -2,10 +2,13 @@
 #include <stdlib.h>
 #include <string.h>
 
+const int SIZE = 25;
 
-const int SIZE = 150000;
+void removeChar(char *str, char charToRemove);
+void getEntry(char *str);
 
-int main (int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
     FILE *fp;
     char *line = NULL;
     size_t len = 0;
@@ -17,33 +20,35 @@ int main (int argc, char *argv[]) {
 
     int line_number = 0;
 
-    while ((read = getline(&line, &len, fp)) != -1) {
-        if (line_number > 0) {
-            char *token;
-            char *s = NULL;
+    while ((read = getline(&line, &len, fp)) != -1)
+    {
+        if (line_number > 0)
+        {
+
+            char *entry;
             int i = 0;
-            while ((token = strtok_r(line, ",", &line))) {
-                switch (i) {
-                    case 0:
-                    printf("%s\n", token);
-                        break;
-                    case 1:
-                        break;
-                    case 2:
-                        break;
-                    case 3:
-                        break;
-                    case 4:
-                        break;
-                    case 5:
-                        s = token;
-                        while (*s != '\n') {
-                            ++s;
-                        }
-                        *s = '\0';
-                        break;
+            char *key;
+            char *value;
+            char *delimiter = "]";
+            char comma = ',';
+            char *colon = ":";
+
+            removeChar(line, ' ');
+
+            while ((entry = strtok_r(line, delimiter, &line)))
+            {
+                removeChar(entry, '[');
+
+                if (entry[0] == comma)
+                {
+                    entry++;
                 }
-                ++i;
+
+            
+                key = strtok_r(entry, colon, &entry);
+                printf("key: %s\n", key);
+                value = entry;
+                printf("value: %s\n", value);
             }
         }
         ++line_number;
@@ -53,4 +58,21 @@ int main (int argc, char *argv[]) {
     if (line)
         free(line);
     exit(EXIT_SUCCESS);
+}
+
+void removeChar(char *str, char charToRemove)
+{
+    // To keep track of non-space character count
+    int count = 0;
+    // Traverse the provided string. If the current character is not a space,
+    // move it to index 'count++'.
+    for (int i = 0; str[i]; i++)
+        if (str[i] != charToRemove)
+            str[count++] = str[i]; // here count is incremented
+    str[count] = '\0';
+}
+
+void getEntry(char *str)
+{
+    char *entry;
 }
