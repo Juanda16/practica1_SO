@@ -7,6 +7,7 @@
 
 #define MAX_NODES 20
 #define MAX_NODE_LENGHT 20
+#define INFINITY INT_MAX
 
 char *nodes[MAX_NODES]; //[MAX_NODE_LENGHT];
 int number_of_nodes = 0;
@@ -46,7 +47,7 @@ int get_index_of_node(char *node_to_check)
             break;
         }
     }
-    printf("Index: %d\n", value);
+    // printf("Index: %d\n", value);
     return value;
 }
 
@@ -64,20 +65,6 @@ void print_adj()
 
 int main(int argc, char *argv[])
 {
-
-    // PQ *pq = pq_create(MAX_NODES, 1);
-    // int i;
-    // double priority;
-
-    // printf("\nCapacity of pq: %d\n\n", pq_capacity(pq));
-
-    // for (int i = 0; i < MAX_NODES; i++)
-    // {
-    //     pq_insert(pq, i, INT_MAX);
-    // }
-
-    // pq_change_priority(pq, 0, 0);
-
     // Getting a pointer to the opened file and check possible error
     int shortest_distance[20][2];
     memset(shortest_distance, -1, sizeof(shortest_distance));
@@ -185,44 +172,31 @@ int main(int argc, char *argv[])
         read_line++;
     }
     print_adj();
-    run_dijkstra(adj, shortest_distance, 0, number_of_nodes);
-
-    // // print the priority queue
-    // for (i = 0; i < pq_capacity(pq); i++)
-    // {
-    //     if (pq_contains(pq, i))
-    //     {
-    //         pq_get_priority(pq, i, &priority);
-    //         printf("<---> [%9lf] <-> ID: %d\n", priority, i);
-    //     }
-    // }
-
-    // printf("\nSize of pq: %d\n", pq_size(pq));
-
-    // pq_free(pq);
+    // TODO escanear del usuario la opcion
+    run_dijkstra(adj, shortest_distance, 0, number_of_nodes); // 0 nodo inicio
 }
 
 void run_dijkstra(int adj_matrix[20][20], int distance[20][2], int s, int n)
 {
 
-    unsigned int S[n]; // vertices processed
-    unsigned int notVisited[n];
+    unsigned int S[n];          // TODO CAMBIAR NOMBRE vertices processed
+    unsigned int notVisited[n]; // TODO borrar
     int i;
     double priority;
 
-    PQ *pq = pq_create(n, 1);
+    PQ *pq = pq_create(n, 1); // n= num nodes, 1 min heap
 
-    printf("\nCapacity of pq: %d\n\n", pq_capacity(pq));
+    // printf("\nCapacity of pq: %d\n\n", pq_capacity(pq));
 
     for (int i = 0; i < n; i++)
     {
-        pq_insert(pq, i, INT_MAX);
+        pq_insert(pq, i, INFINITY);
     }
 
-    pq_change_priority(pq, 0, 0);
+    pq_change_priority(pq, s, 0);
 
     // print the priority queue
-    print_pq(pq);
+    // print_pq(pq);
 
     // printf("\n----------\n");
 
@@ -237,30 +211,23 @@ void run_dijkstra(int adj_matrix[20][20], int distance[20][2], int s, int n)
 
     // printf("\n----------\n");
 
-    printf("\nSize of pq: %d\n", pq_size(pq));
+    // printf("\nSize of pq: %d\n", pq_size(pq));
 
-    for (size_t i = 0; i < n; i++)
-    {
-        notVisited[i] = i;
-    }
+    // for (size_t i = 0; i < n; i++)
+    // {
+    //     notVisited[i] = i;
+    // }
 
     for (int i = 0; i < n; i++)
     {
-        distance[i][0] = INT_MAX;
-        distance[i][1] = INT_MAX;
-        // heap[i][0] = 0xFFFFFFFF;
-        // heap[i][1] = i;
+        distance[i][0] = INFINITY;
+        distance[i][1] = INFINITY;
         S[i] = 0;
     }
     distance[s][0] = 0; // distance from s to s
     distance[s][1] = 0; // predecessor of s
-                        // heap[s][0] = 0;
 
-    // unsigned int heap_size = n;
-
-    // build_min_heap(heap, heap_size);
-
-    while (pq_size(pq) > 0) // quote !=0 pq
+    while (pq_size(pq) > 0) // Tamaño de la cola -- hasta 0 quote !=0 pq
     {
         int id = -1;
         pq_delete_top(pq, &id, &priority);
@@ -274,47 +241,25 @@ void run_dijkstra(int adj_matrix[20][20], int distance[20][2], int s, int n)
             break;
         }
         S[id] = 1;
-        for (int i = 0; i < n; i++)
-        {
-            printf("Vsitados S[%d]: %d\n", i, S[i]);
-        }
+        // for (int i = 0; i < n; i++)
+        // {
+        //     printf("Vsitados S[%d]: %d\n", i, S[i]);
+        // }
 
-        // heap_size--;
-        if (priority == (unsigned int)-1)
+        if (priority == (unsigned int)-1) // TODO cambiar priority por weight
         {
             break;
         }
         else
         {
-            for (int i = 0; i < number_of_nodes; i++)
+            for (int v = 0; v < n; v++) // v son los vecinos de id
             {
-                for (int j = 0; j < number_of_nodes; j++)
-                {
-                    printf("%d ", adj[i][j]);
-                }
-                printf("\n");
-            }
-            for (int v = 0; v < n; v++)
-            {
-                printf("\n----------\n");
-
-                for (int i = 0; i < 20; i++)
-                {
-                    for (int j = 0; j < 2; j++)
-                    {
-                        printf("%d ", distance[i][j]);
-                    }
-                    printf("\n");
-                }
-
-                printf("\n----------\n");
-                int w = adj[id][v];
+                int w = adj[id][v]; // Peso de adyacentes de id
 
                 printf("id:%d >>> v:%d >>> w: %d\n", id, v, w);
                 if (w != (unsigned int)0 && S[v] != 1)
                 {
-                    printf("Relaxing\n");
-                    relax(pq, distance, id, v, w, n);
+                    relax(pq, distance, id, v, w, n); // TODO ver si son necesarias todas las variables
                 }
             }
         }
@@ -323,17 +268,28 @@ void run_dijkstra(int adj_matrix[20][20], int distance[20][2], int s, int n)
     }
 
     // print the priority queue
-    for (i = 0; i < pq_capacity(pq); i++)
+    // for (i = 0; i < pq_capacity(pq); i++)
+    // {
+    //     if (pq_contains(pq, i))
+    //     {
+    //         pq_get_priority(pq, i, &priority);
+    //         printf("<---> [%9lf] <-> ID: %d\n", priority, i);
+    //     }
+    // }
+
+    // printf("\nSize of pq: %d\n", pq_size(pq));
+    printf("\n----------\n"); // TODO hacer un metodo que imprima esto (linea326)
+
+    for (int i = 0; i < 20; i++)
     {
-        if (pq_contains(pq, i))
+        for (int j = 0; j < 2; j++)
         {
-            pq_get_priority(pq, i, &priority);
-            printf("<---> [%9lf] <-> ID: %d\n", priority, i);
+            printf("%d ", distance[i][j]);
         }
+        printf("\n");
     }
 
-    printf("\nSize of pq: %d\n", pq_size(pq));
-
+    printf("\n----------\n");
     pq_free(pq);
 }
 
@@ -342,16 +298,16 @@ void relax(PQ *pq, int distance[20][2],
 {
 
     unsigned int weight = distance[id][0] + w;
-    printf("weight: %d\n", weight);
+    // printf("weight: %d\n", weight);
 
     if (distance[v][0] > weight)
     {
         distance[v][0] = weight;
-        printf("distance[%d][0]: %d\n", v, distance[v][0]);
+        // printf("distance[%d][0]: %d\n", v, distance[v][0]);
         distance[v][1] = id;
-        printf("distance[%d][1]: %d\n", v, distance[v][1]);
+        // printf("distance[%d][1]: %d\n", v, distance[v][1]);
         pq_change_priority(pq, v, weight);
-        print_pq(pq);
+        // print_pq(pq);
     }
 }
 
@@ -367,3 +323,4 @@ void print_pq(PQ *pq)
         }
     }
 }
+// TODO metodo imprimir una matriz cualquiera
